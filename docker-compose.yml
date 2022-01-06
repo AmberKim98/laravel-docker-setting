@@ -1,0 +1,47 @@
+version: "3.8"
+
+networks:
+  laravel:
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    ports:
+      - "8088:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - php
+      - mysql
+
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: testing
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - laravel
+    ports: 
+      3306:3306
+
+  php:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    container_name: php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - 9000:9000
+    networks:
+      - laravel
